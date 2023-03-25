@@ -1,14 +1,15 @@
 import { useCallback, useState } from "react"
 
-export const Header = (props) => {
+export const Header = ({ onChangeFilter, startSearch, search }) => {
     const [value, setValue] = useState('')
     const onSearch = () => {
-        props.startSearch(true)
-        props.search(value)
+        startSearch(true)
+        search(value)
     }
     const onChangeList = (event) => {
-        props.onChangeFilter(event.target.value)
         console.log(event.target.value)
+        // props.onChangeFilter(event.target.value)
+
     }
     return (
         <div>
@@ -21,7 +22,7 @@ export const Header = (props) => {
             </div>
             <div>
                 <input type='text' />
-                <select onChange={onChangeList}>
+                <select onChange={(evt) => { onChangeFilter(evt.target.value) }}>
                     <option value="all">All</option>
                     <option value="Biography">Biography</option>
                     <option value="Computers">Computers</option>

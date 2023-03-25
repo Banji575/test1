@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from "react"
 function App() {
   const [bookKeyWord, setBookKeyWord] = useState('')
   const [bookData, setBookData] = useState(null)
-  const [bookDataFilter, setBookDataFilter] = useState(null)
+  const [bookDataFilter, setBookDataFilter] = useState([])
   const [bookFilter, setBookFilter] = useState('all')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -18,39 +18,53 @@ function App() {
         console.log(book.volumeInfo.categories.includes(bookFilter))
       })
       setBookDataFilter(bookFilterArr)
-      //console.log(bookFilter, 'rerer')
     }
     else {
       setBookDataFilter(bookData)
-      console.log(bookFilter, 'rerer')
     }
   }
   const onChangeFilter = (filter) => {
-    setBookDataFilter(filter)
-    filterBook()
+    if (!bookData) return
+    if (filter === 'all') {
+      setBookDataFilter(bookData.items)
+    } else {
+
+      const newArr = bookData.items.filter((item, index, arr) => {
+        return item.volumeInfo.categories.includes(filter)
+      })
+      setBookDataFilter(newArr)
+    }
+
+
   }
+
+  useEffect(() => {
+    onChangeFilter(bookFilter)
+  }, [bookData])
+
 
   useEffect(() => {
     if (bookKeyWord === "") return
     fetch(`https://www.googleapis.com/books/v1/volumes?q=${bookKeyWord}&key=AIzaSyDwUpMRt-K6uh89hU4Pu3775c4RECpvTK8`)
       .then((data) => data.json())
       .then((books) => {
-        console.log(books)
         setBookData(books)
-        filterBook()
+
         setIsLoading(false)
       })
   }, [bookKeyWord])
   const search = (name) => {
 
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${name}&key=AIzaSyDwUpMRt-K6uh89hU4Pu3775c4RECpvTK8`
+    // const url = `https://www.googleapis.com/books/v1/volumes?q=${name}&key=AIzaSyDwUpMRt-K6uh89hU4Pu3775c4RECpvTK8`
     setBookKeyWord(name)
   }
   const Content = isLoading ? <div>Loading</div> : <BooksList books={bookDataFilter} />
 
   return (
     <div className="App">
-      <Header search={search} startSearch={setIsLoading}
+      <Header
+        search={search}
+        startSearch={setIsLoading}
         onChangeFilter={onChangeFilter} />
       {Content}
     </div>
